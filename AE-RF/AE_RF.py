@@ -254,12 +254,8 @@ def DeepCDA():
     
     
     num_cross_val = 5
-    all_performance = []
     all_performance_rf = []
-    all_performance_bef = []
-    all_performance_DNN = []
-    all_performance_SDADNN = []
-    all_performance_blend = []
+    all_performance_DNN = []  
     all_labels = []
     all_prob = {}
     num_classifier = 3
