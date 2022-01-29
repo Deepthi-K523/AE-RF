@@ -159,14 +159,14 @@ def calculate_performace(test_num, pred_y,  labels): #pred_y = proba, labels = r
 
     return acc, precision, sensitivity, specificity, MCC,f1_score
 
-def transfer_array_format(data):    #data=X  , X= all the miRNA features, disease features 
+def transfer_array_format(data):    #data=X  , X= all the circRNA features, disease features 
     formated_matrix1 = []
     formated_matrix2 = []
     #pdb.set_trace()
     #pdb.set_trace()
     for val in data:
         #formated_matrix1.append(np.array([val[0]]))
-        formated_matrix1.append(val[0])   #contains miRNA features ?
+        formated_matrix1.append(val[0])   #contains circRNA features ?
         formated_matrix2.append(val[1])   #contains disease features ?
         #formated_matrix1[0] = np.array([val[0]])
         #formated_matrix2.append(np.array([val[1]]))
@@ -182,28 +182,6 @@ def preprocess_labels(labels, encoder=None, categorical=True):
     if categorical:
         y = np_utils.to_categorical(y)
     return y, encoder
-
-def DNN():
-    model = Sequential()
-    model.add(Dense(input_dim=128, output_dim=500))#, 1371,878 shapeinit='glorot_normal')) ## 1027 1261 1021 918 128 878 638 535
-    model.add(Activation('relu'))
-    model.add(Dropout(0.3))
-
-    model.add(Dense(input_dim=500, output_dim=500,init='glorot_normal'))  ##500  # Hidden layer1
-    model.add(Activation('relu'))
-    model.add(Dropout(0.3))
-
-    model.add(Dense(input_dim=500, output_dim=300))#,init='glorot_normal'))  ##500 # Hidden layer 2
-    model.add(Activation('relu'))
-    model.add(Dropout(0.3))
-
-    model.add(Dense(input_dim=300, output_dim=2))#,init='glorot_normal'))  ##500  #  Output layer
-    model.add(Activation('sigmoid'))
-    #sgd = SGD(l2=0.0,lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
-    adadelta = Adadelta(lr=1.0, rho=0.95, epsilon=1e-08)
-    model.compile(loss='categorical_crossentropy', optimizer=adadelta) #, class_mode="binary")##rmsprop sgd
-    return model
-
 
 
 def DNN_auto(x_train):
@@ -236,16 +214,13 @@ def DNN_auto(x_train):
     #batch_size=100 original
     encoded_imgs = encoder.predict(x_train)
 
-    return encoder_output,encoded_imgs
-
-
-
+    
 
 def DeepCDA():
     X, labels,T = prepare_data(seperate = True)     #X= array of concatinated features,labels=corresponding labels
     #import pdb            #python debugger
    
-    X_data1, X_data2 = transfer_array_format(X) # X-data1 = miRNA features(2500*495),  X_data2 = disease features (2500*383)
+    X_data1, X_data2 = transfer_array_format(X) # X-data1 = circRNA features(2500*495),  X_data2 = disease features (2500*383)
     
     print("************")
     print (X_data1.shape,X_data2.shape)  # (36352,512), (36352,71)
@@ -321,9 +296,7 @@ def DeepCDA():
         
         
         
-       # prefilter_train_bef, prefilter_test_bef = autoencoder_two_subnetwork_fine_tuning(train1, train2, train_label, test1, test2, test_label)
-        
-       
+         
 
         ## DNN 
         class_index = class_index + 1
@@ -332,11 +305,7 @@ def DeepCDA():
         
         prefilter_train = train1
         prefilter_test = test1
-#        
-       # model_DNN = DNN()
-        
-        #encoder,encoder_imgs=DNN_auto(prefilter_train)
-        
+
         
             
         clf = RandomForestClassifier(n_estimators=100)
@@ -356,9 +325,6 @@ def DeepCDA():
         fpr, tpr, auc_thresholds = roc_curve(real_labels, ae_y_pred_prob)
         auc_score = auc(fpr, tpr)
         
-
-        
-        scipy.io.savemat('raw_DNN',{'fpr':fpr,'tpr':tpr,'auc_score':auc_score})
 
 
         ## AUPR score add 
@@ -394,7 +360,6 @@ def DeepCDA():
     
     
     
-    
     print('*******AUTO-RF*****')   
     print ('mean performance of rf using raw feature')
     print (np.mean(np.array(all_performance_DNN), axis=0))
@@ -405,11 +370,8 @@ def DeepCDA():
     print('Mean-Sensitivity=', Mean_Result[2], '\n Mean-Specificity=',Mean_Result[3])
     print('Mean-MCC=', Mean_Result[4],'\n' 'Mean-auc_score=',Mean_Result[5])
     print('Mean-Aupr-score=', Mean_Result[6],'\n' 'Mean_F1=',Mean_Result[7])
-    print ('---' * 20)
-    
-    print(X_data1.shape)
-    
-    
+    print ('---' * 20)   
+     
    
 
 def transfer_label_from_prob(proba):
